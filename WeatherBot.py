@@ -1,5 +1,3 @@
-from zoneinfo import ZoneInfo
-
 import telebot
 import urllib.request
 import urllib.parse
@@ -18,7 +16,7 @@ connection = con.connect(
     port=8889
 )
 
-bot = telebot.TeleBot('***');
+bot = telebot.TeleBot('7298537918:AAF2zo5JtlYTNFC1Kp0sg2-Cq8RK2H9gEBQ');
 
 def get_json(city):
     urlcity = urllib.parse.quote(city)
@@ -28,15 +26,12 @@ def get_json(city):
 def get_description_of_day(message, json_data):
     description = ts.translate_text(json_data['days'][0]['description'], 'yandex', to_language='ru')
     bot.send_message(message.from_user.id, description)
-
 def get_max_temp_of_day(message, city, jsonData):
     bot.send_message(message.from_user.id,
                      f"Максимальная температура в городе {city} - {jsonData['days'][0]['tempmax']}°C")
-
 def get_min_temp_of_day(message, city, jsonData):
     bot.send_message(message.from_user.id,
                      f"Минимальная температура в городе {city} - {jsonData['days'][0]['tempmin']}°C")
-
 def get_temp(message, jsonData):
     bot.send_message(message.from_user.id,
                      f"Температура сейчас - {jsonData['days'][0]['hours'][int(datetime.datetime.now().astimezone(pytz.timezone(jsonData['timezone'])).strftime("%H"))]['temp']}°C ")
@@ -113,8 +108,6 @@ def send_weather_info(message, city, json_data):
     get_min_temp_of_day(message, city, json_data)
     get_temp(message, json_data)
     get_wind_speed(message, json_data)
-
-
 def add_saved_city_to_db(message):
     cursor = connection.cursor()
     request_to_insert_data = '''
@@ -124,10 +117,6 @@ def add_saved_city_to_db(message):
     cursor.execute(request_to_insert_data, values)
     connection.commit()
     cursor.close()
-
-
-
-
 def weather_in_my_city(message):
     cursor = connection.cursor()
     cursor.execute("SELECT remember_city FROM users WHERE user_id = %s", (message.from_user.id,))
@@ -139,6 +128,5 @@ def weather_in_my_city(message):
         send_weather_info(message, city, get_json(city))
     else:
         bot.send_message(message.chat.id, "Город не был выбран. Используйте команду /savename, чтобы выбрать город.")
-
 
 bot.polling(none_stop=True, interval=0)
